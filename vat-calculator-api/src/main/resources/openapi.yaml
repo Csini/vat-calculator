@@ -1,0 +1,125 @@
+openapi: 3.0.3
+info:
+  description:
+    Application providing vat calculation.
+  version: 1.0.0
+  title: VAT Calculator API
+  contact:
+    name: 
+      VAT Calculator Co.
+
+servers:
+  - url: http://localhost:9010/vat-calculator-business/v1
+    description: Local environment (mainly for development)
+
+tags:
+  - name: Calculate
+    description: Provides Calculator endpoints to VAT
+
+paths:
+  /api/calculate/{vatrate}:
+    get:
+      summary: Calculates.
+      tags: 
+        - Calculate
+      operationId: calculateValues
+      parameters:
+        - in: path
+          name: vatrate
+          schema:
+             type: number
+             format: double
+             minimum: 0
+             maximum: 100
+          required: true
+          description: VAT rate s percent e.g. 10, 13, 20 %
+        - in: query
+          name: price
+          schema:
+            type: number
+            format: double
+            minimum: 0
+          required: false
+          description: Price without vat
+        - in: query
+          name: vat
+          schema:
+            type: number
+            format: double
+            minimum: 0
+          required: false
+          description: value added tax
+        - in: query
+          name: fullprice
+          schema:
+            type: number
+            format: double
+            minimum: 0
+          required: false
+          description: Price inclusive vat
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalculateResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+components:
+  schemas:
+    CalculateResponse:
+      description: Type “CalculateResponse”.
+      type: object
+      required: [price, vat, fullprice, vatrate]
+      properties:
+        price:
+         type: number
+         format: double
+        vat:
+          type: number
+          format: double
+        fullprice:
+          type: number
+          format: double
+        vatrate:
+          type: number
+          format: double
+          example: 10
+    Error:
+      description: Error object
+      example:
+        message: message
+        timestamp: timestamp
+      properties:
+        message:
+          description: Error message
+          type: string
+        timestamp:
+          description: The timestamp the error has occured
+          type: string
+      required:
+      - message
+      - timestamp
+      type: object
+  responses:
+    BadRequestError:
+      description: Syntax error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Request cannot be processed because it is syntactically wrong
+            timestamp: '2023-04-20T11:00:00Z'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Internal server error
+            timestamp: '2023-04-20T11:00:00Z'

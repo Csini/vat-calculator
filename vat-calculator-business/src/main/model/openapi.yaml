@@ -1,0 +1,151 @@
+openapi: 3.0.3
+info:
+  description:
+    Application providing hash calculation.
+  version: 1.0.0
+  title: Hash Calculation API
+  contact:
+    name: >-
+      SALGO-TECHNIK Kft
+
+servers:
+  - url: http://localhost:8080/hash/v1
+    description: Local environment (mainly for development)
+
+security:
+  - basicAuth: []
+
+tags:
+  - name: Hash Calculation
+    description: Provides endpoints to calculate the hash of the passwords
+
+paths:
+  /api/items:
+    post:
+      tags:
+        - Hash Calculation
+      summary: Calculates the hash of the provided items and persist the items
+      description: |
+        This endpoint is responsible to calculate the SHA-256 hash of each items and persists them into the database.
+      operationId: postItems
+      parameters:
+        - $ref: '#/components/parameters/trackingId'
+      security:
+        - basicAuth: []
+      requestBody:
+        description: List of items to be persisted.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/itemsRequest'
+      responses:
+        200:
+          description: Returns the persised list of items with their hash codes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/itemsResponse'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  responses:
+    BadRequestError:
+      description: Syntax error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Request cannot be processed because it is syntactically wrong
+            timestamp: '2023-04-20T11:00:00Z'
+    UnauthorizedError:
+      description: Authentication error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Authentication error
+            timestamp: '2023-04-20T11:00:00Z'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Internal server error
+            timestamp: '2023-04-20T11:00:00Z'
+  parameters:
+    trackingId:
+      in: header
+      name: x-tracking-id
+      description: Tracking ID for analysing errors
+      required: false
+      schema:
+        type: string
+        example: e47349b3-d658-479c-87e1-c8cede2efb05
+  schemas:
+    itemsRequest:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/itemInput'
+    itemInput:
+      type: object
+      properties:
+        id: 
+          type: string
+          example: null
+        name:
+          type: string
+          example: Item 1
+        password:
+          type: string
+          example: Password 1
+    itemsResponse:
+      type: object
+      properties:
+        size:
+          type: integer
+          example: 1
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/itemOutput'
+    itemOutput:
+      type: object
+      properties:
+        id: 
+          type: string
+          example: 617a6118-a641-42f7-a3a5-5d6ff85b5654
+        name:
+          type: string
+          example: Item 1
+        password:
+          type: string
+          example: SHA-256 Password Hash 1
+    Error:
+      type: object
+      description: Error object
+      required:
+        - message
+        - timestamp
+      properties:
+        message:
+          type: string
+          description: Error message
+        timestamp:
+          type: string
+          description: The timestamp the error has occured

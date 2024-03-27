@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout
+                pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}][%style{%X{trackingId}}{bright,magenta}][%style{%X{item}}{bright,magenta}] %style{%C{1.8.*}}{bright,yellow}: %msg%n%throwable" />
+        </Console>
+
+    </Appenders>
+
+    <Loggers>
+        <!-- LOG everything at INFO level -->
+        <Root level="info">
+            <AppenderRef ref="Console" />
+        </Root>
+
+        <!-- LOG "hu.spring.feladat*" at DEBUG level -->
+        <Logger name="hu.spring.feladat" level="debug"></Logger>
+        
+        <Logger name="org.springframework.transaction.interceptor" level="TRACE"></Logger>
+    </Loggers>
+
+</Configuration>
